@@ -1,5 +1,5 @@
-# **mpltools** : Maplotlib tools
+# **mplutils** : Maplotlib tools
 
-For now, **mpltools** only provides some tools for custom cmaps
+For now, **mplutils** only provides some tools for custom cmaps
 
 
