@@ -30,4 +30,4 @@ DOCSTRING
 from .custom_cmap import modified_jet, grayify_cmap, cmap_center_point_adjust, MidpointNormalize
 from .multi_pcolor import set_figsize, get_subplot_shape
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
