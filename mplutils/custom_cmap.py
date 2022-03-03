@@ -134,6 +134,8 @@ def cmap_center_point_adjust(cmap, range, center):
 
 
 class MidpointNormalize(colors.Normalize):
+    """Adjust cmap."""
+
     def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
         self.midpoint = midpoint
         colors.Normalize.__init__(self, vmin, vmax, clip)
@@ -141,10 +143,10 @@ class MidpointNormalize(colors.Normalize):
     def __call__(self, value, clip=None):
 
         if self.vmin < self.midpoint < self.vmax:
-            x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-            return np.ma.masked_array(np.interp(value, x, y))
-
-        else:
             x, y = [self.vmin, (self.vmax+self.vmin)/2, self.vmax], [0, 0.5, 1]
-            return np.ma.masked_array(np.interp(value, x, y))
+        elif self.vmin == self.midpoint:
+            x, y = [self.vmin, self.midpoint, self.vmax], [0.5, 0.5, 1]
+        else:
+            x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
 
+        return np.ma.masked_array(np.interp(value, x, y))
