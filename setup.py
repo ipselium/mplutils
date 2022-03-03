@@ -35,7 +35,7 @@ setup(
     description="Tools for matplotlib",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
-    version="0.3.2",
+    version="0.4.0",
     license="GPL",
     url='http://github.com/ipselium/mplutils',
     author="Cyril Desjouy",
