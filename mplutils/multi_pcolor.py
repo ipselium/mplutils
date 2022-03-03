@@ -91,8 +91,9 @@ def get_screen_xy(metric='inch', xbound=None, ybound=None):
     raise ValueError("metric must be 'inch', 'mm', or 'px'")
 
 
-def set_figsize(axes, figsize, size=70):
-    """ Returns ideal figsize.
+def set_figsize(axes, figsize, size=85):
+    """ Returns ideal figsize based on screen size
+        and data ratio (height/width).
 
     Parameters
     ----------
@@ -115,9 +116,15 @@ def set_figsize(axes, figsize, size=70):
         else:
             ratio = axes.get_data_ratio()
 
-        if width*ratio > height:
+        if ratio > 1:
             figsize = 1.5*height/ratio, height
+        elif ratio < 1/8:
+            figsize = width, width*(ratio*4)
+        elif ratio < 1/4:
+            figsize = width, width*(ratio*2)
+        elif ratio < 1:
+            figsize = width, width*ratio*1.5
         else:
-            figsize = width, width*ratio*1.2
+            figsize = 1.1*width, 1.1*height
 
     return figsize
