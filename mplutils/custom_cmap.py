@@ -29,13 +29,11 @@ DOCSTRING
 
 import matplotlib.pyplot as plt
 from matplotlib import colors
+from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
-import math
-import copy
 
 
-__all__ = ['modified_jet', 'grayify_cmap',
-           'cmap_center_point_adjust', 'MidpointNormalize']
+__all__ = ['modified_jet', 'grayify_cmap', 'MidPointNorm']
 
 
 def modified_jet():
@@ -43,7 +41,6 @@ def modified_jet():
     Modified jet colormap
     howto : http://matplotlib.org/examples/pylab_examples/custom_cmap.html
     """
-    from matplotlib.colors import LinearSegmentedColormap
     cdictjet = {'blue': ((0.0, 1., 1.),
                          (0.11, 1, 1),
                          (0.34, 1, 1),
@@ -87,54 +84,12 @@ def grayify_cmap(cmap):
     return cmap.from_list(cmap.name + "_grayscale", colors, cmap.N)
 
 
-def _cmap_powerlaw_adjust(cmap, a):
-    '''
-    returns a new colormap based on the one given
-    but adjusted via power-law:
+class MidPointNorm(colors.Normalize):
+    """ Adjust cmap.
+    From https://stackoverflow.com/questions/
+    7404116/defining-the-midpoint-of-a-colormap-in-matplotlib
 
-    newcmap = oldcmap**a
-    '''
-    if a < 0.:
-        return cmap
-    cdict = copy.copy(cmap._segmentdata)
-    fn = lambda x: (x[0]**a, x[1], x[2])
-    for key in ('red', 'green', 'blue'):
-        cdict[key] = map(fn, cdict[key])
-        cdict[key].sort()
-        assert (cdict[key][0] < 0 or cdict[key][-1] > 1), \
-            "Resulting indices extend out of the [0, 1] segment."
-    return colors.LinearSegmentedColormap('colormap', cdict, 1024)
-
-
-def _cmap_center_adjust(cmap, center_ratio):
-    '''
-    [ ONLY WITH PYTHON 2.X]
-
-    returns a new colormap based on the one given
-    but adjusted so that the old center point higher
-    (>0.5) or lower (<0.5)
-    '''
-    if not (0. < center_ratio) & (center_ratio < 1.):
-        return cmap
-    a = math.log(center_ratio) / math.log(0.5)
-    return _cmap_powerlaw_adjust(cmap, a)
-
-
-def cmap_center_point_adjust(cmap, range, center):
-    '''
-    [ ONLY WITH PYTHON 2.X]
-
-    converts center to a ratio between 0 and 1 of the
-    range given and calls cmap_center_adjust(). returns
-    a new adjusted colormap accordingly
-    '''
-    if not ((range[0] < center) and (center < range[1])):
-        return cmap
-    return _cmap_center_adjust(cmap, abs(center - range[0]) / abs(range[1] - range[0]))
-
-
-class MidpointNormalize(colors.Normalize):
-    """Adjust cmap."""
+    """
 
     def __init__(self, vmin=None, vmax=None, midpoint=None, clip=False):
         self.midpoint = midpoint
@@ -142,11 +97,10 @@ class MidpointNormalize(colors.Normalize):
 
     def __call__(self, value, clip=None):
 
-        if self.vmin < self.midpoint < self.vmax:
-            x, y = [self.vmin, (self.vmax+self.vmin)/2, self.vmax], [0, 0.5, 1]
-        elif self.vmin == self.midpoint:
-            x, y = [self.vmin, self.midpoint, self.vmax], [0.5, 0.5, 1]
-        else:
-            x, y = [self.vmin, self.midpoint, self.vmax], [0, 0.5, 1]
-
+        vmin = max(0, 1 / 2 * (1 - abs((self.midpoint - self.vmin) /
+                                       (self.midpoint - self.vmax))))
+        vmax = min(1, 1 / 2 * (1 + abs((self.vmax - self.midpoint) /
+                                       (self.midpoint - self.vmin))))
+        mid = 0.5
+        x, y = [self.vmin, self.midpoint, self.vmax], [vmin, mid, vmax]
         return np.ma.masked_array(np.interp(value, x, y))
