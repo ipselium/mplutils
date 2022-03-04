@@ -98,9 +98,14 @@ class MidPointNorm(colors.Normalize):
     def __call__(self, value, clip=None):
 
         vmin = max(0, 1 / 2 * (1 - abs((self.midpoint - self.vmin) /
-                                       (self.midpoint - self.vmax))))
-        vmax = min(1, 1 / 2 * (1 + abs((self.vmax - self.midpoint) /
-                                       (self.midpoint - self.vmin))))
+                                    (self.midpoint - self.vmax))))
+
+        if self.vmin != 0:
+            vmax = min(1, 1 / 2 * (1 + abs((self.vmax - self.midpoint) /
+                                        (self.midpoint - self.vmin))))
+        else:
+            vmax = 1
+
         mid = 0.5
         x, y = [self.vmin, self.midpoint, self.vmax], [vmin, mid, vmax]
         return np.ma.masked_array(np.interp(value, x, y))
