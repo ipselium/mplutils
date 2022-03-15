@@ -28,7 +28,7 @@ DOCSTRING
 """
 
 import matplotlib.pyplot as plt
-from matplotlib import colors
+from matplotlib import colors, cm
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 
@@ -36,36 +36,49 @@ import numpy as np
 __all__ = ['modified_jet', 'grayify_cmap', 'MidPointNorm']
 
 
+def cmap_exists(name):
+    """Test if a cmap is already registered. """
+    try:
+        cm.get_cmap(name)
+    except ValueError:
+        return False
+    return True
+
+
 def modified_jet():
     """
     Modified jet colormap
     howto : http://matplotlib.org/examples/pylab_examples/custom_cmap.html
     """
-    cdictjet = {'blue': ((0.0, 1., 1.),
-                         (0.11, 1, 1),
-                         (0.34, 1, 1),
-                         (0.48, 1, 1),
-                         (0.52, 1, 1),
-                         (0.65, 0, 0),
-                         (1, 0, 0)),
-                'green': ((0.0, 0.6, 0.6),
-                          (0.125, 0.8, 0.8),
-                          (0.375, 1, 1),
-                          (0.48, 1, 1),
-                          (0.52, 1, 1),
-                          (0.64, 1, 1),
-                          (0.91, 0, 0),
-                          (1, 0, 0)),
-                'red': ((0.0, 0, 0),
-                        (0.35, 0, 0),
-                        (0.48, 1, 1),
-                        (0.52, 1, 1),
-                        (0.66, 1, 1),
-                        (0.8, 1, 1),
-                        (1, 0., 0.))
-                }
-    cmc = LinearSegmentedColormap('mjet', cdictjet, 1024)
-    plt.register_cmap(cmap=cmc)
+
+    if not cmap_exists('mjet'):
+        cdictjet = {'blue': ((0.0, 1., 1.),
+                             (0.11, 1, 1),
+                             (0.34, 1, 1),
+                             (0.48, 1, 1),
+                             (0.52, 1, 1),
+                             (0.65, 0, 0),
+                             (1, 0, 0)),
+                    'green': ((0.0, 0.6, 0.6),
+                              (0.125, 0.8, 0.8),
+                              (0.375, 1, 1),
+                              (0.48, 1, 1),
+                              (0.52, 1, 1),
+                              (0.64, 1, 1),
+                              (0.91, 0, 0),
+                              (1, 0, 0)),
+                    'red': ((0.0, 0, 0),
+                            (0.35, 0, 0),
+                            (0.48, 1, 1),
+                            (0.52, 1, 1),
+                            (0.66, 1, 1),
+                            (0.8, 1, 1),
+                            (1, 0., 0.))
+                    }
+        cmc = LinearSegmentedColormap('mjet', cdictjet, 1024)
+        plt.register_cmap(name='mjet', cmap=cmc)
+    else:
+        cmc = cm.get_cmap('mjet')
 
     return cmc
 
